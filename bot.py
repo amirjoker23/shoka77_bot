@@ -1,20 +1,22 @@
 import os
 import logging
-import asyncio
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
-    ApplicationBuilder, CommandHandler, MessageHandler,
-    filters, ConversationHandler, ContextTypes
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    filters,
+    ConversationHandler,
+    ContextTypes,
 )
 
 PORT = int(os.environ.get("PORT", 8443))
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 ADMIN_ID = int(os.environ["ADMIN_ID"])
-WEBHOOK_URL = os.environ["WEBHOOK_URL"]
+WEBHOOK_URL = os.environ["WEBHOOK_URL"]  # https://yourdomain.com
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
 (NAME, PHONE, NATIONAL_ID, MARITAL, ADDRESS, BIRTHDAY, JOB, PLAN, POSTAL, BENEFICIARY_ID, BENEFICIARY_BIRTHDAY) = range(11)
@@ -103,8 +105,8 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("فرآیند لغو شد.")
     return ConversationHandler.END
 
-async def main():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
+def main():
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -124,15 +126,17 @@ async def main():
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
-    app.add_handler(conv_handler)
+    application.add_handler(conv_handler)
 
-    await app.run_webhook(
+    logging.info(f"Starting webhook on port {PORT} with URL {WEBHOOK_URL}/{BOT_TOKEN}")
+
+    application.run_webhook(
         listen="0.0.0.0",
         port=PORT,
-        webhook_url=WEBHOOK_URL,
-        stop_signals=None,
+        webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}",
         drop_pending_updates=True,
     )
 
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
