@@ -139,7 +139,6 @@ def main():
         listen="0.0.0.0",
         port=PORT,
         webhook_url=WEBHOOK_URL,
-        webhook_path="/",  # مهم برای درست‌کار کردن Render
         drop_pending_updates=True,
     )
 
