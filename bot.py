@@ -133,12 +133,12 @@ def main():
 
     application.add_handler(conv_handler)
 
-    logging.info(f"🌐 راه‌اندازی وبهوک روی پورت {PORT} با آدرس {WEBHOOK_URL}/{BOT_TOKEN}")
+        logging.info(f"🌐 راه‌اندازی وبهوک روی پورت {PORT} با آدرس {WEBHOOK_URL}")
 
     application.run_webhook(
         listen="0.0.0.0",
         port=PORT,
-        webhook_url=f"{WEBHOOK_URL}/{BOT_TOKEN}",
+        webhook_url=WEBHOOK_URL,
         drop_pending_updates=True,
     )
 
