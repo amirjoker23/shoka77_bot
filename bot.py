@@ -14,7 +14,8 @@ from telegram.ext import (
 PORT = int(os.environ.get("PORT", 8443))
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 ADMIN_ID = int(os.environ["ADMIN_ID"])
-WEBHOOK_URL = os.environ["WEBHOOK_URL"]  # مثلا: https://shoka77-bot.onrender.com
+WEBHOOK_BASE = os.environ["WEBHOOK_BASE"]  # مثال: https://shoka77-bot.onrender.com
+WEBHOOK_URL = f"{WEBHOOK_BASE}/{BOT_TOKEN}"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -23,7 +24,7 @@ logging.basicConfig(
 # مراحل گفتگو
 (NAME, PHONE, NATIONAL_ID, MARITAL, ADDRESS, BIRTHDAY, JOB, PLAN, POSTAL, BENEFICIARY_ID, BENEFICIARY_BIRTHDAY) = range(11)
 
-# شروع
+# شروع گفتگو
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👤 لطفاً نام و نام خانوادگی خود را وارد کنید:")
     return NAME
@@ -109,7 +110,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("❌ فرآیند لغو شد.")
     return ConversationHandler.END
 
-# تابع اصلی
+# تابع اصلی اجرا
 def main():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
