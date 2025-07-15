@@ -14,75 +14,119 @@ from telegram.ext import (
 PORT = int(os.environ.get("PORT", 8443))
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 ADMIN_ID = int(os.environ["ADMIN_ID"])
-WEBHOOK_URL = os.environ["WEBHOOK_URL"]  # مثلا: https://shoka77-bot.onrender.com
+WEBHOOK_URL = os.environ["WEBHOOK_URL"]  # مثلا: https://shoka77-bot.onrender.com/your_bot_token
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
 # مراحل گفتگو
-(NAME, PHONE, NATIONAL_ID, MARITAL, ADDRESS, BIRTHDAY, JOB, PLAN, POSTAL, BENEFICIARY_ID, BENEFICIARY_BIRTHDAY) = range(11)
+(
+    NAME,
+    PHONE,
+    NATIONAL_ID,
+    MARITAL,
+    ADDRESS,
+    BIRTHDAY,
+    JOB,
+    PLAN,
+    POSTAL,
+    BENEFICIARY_ID,
+    BENEFICIARY_BIRTHDAY,
+) = range(11)
 
-# شروع گفتگو
+
+# شروع گفتگو با دستور /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👤 لطفاً نام و نام خانوادگی خود را وارد کنید:")
+    await update.message.reply_text(
+        "سلام و خوش آمدید! 🌟\n"
+        "برای ثبت اطلاعات خود لطفاً نام و نام خانوادگی‌تان را وارد کنید:"
+    )
     return NAME
+
+
+# شروع گفتگو با متن دقیق "start" یا "استارت"
+async def start_on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text.lower()
+    if text in ["start", "استارت"]:
+        return await start(update, context)
+    else:
+        # اگر متن دیگری بود، گفتگو را پایان بده یا پیام دیگری ارسال کن
+        await update.message.reply_text(
+            "برای شروع لطفاً دستور /start را ارسال کنید یا کلمه 'start' یا 'استارت' را بفرستید."
+        )
+        return ConversationHandler.END
+
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['name'] = update.message.text
     await update.message.reply_text("📞 شماره تماس شما:")
     return PHONE
 
+
 async def get_phone(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['phone'] = update.message.text
     await update.message.reply_text("🆔 کد ملی:")
     return NATIONAL_ID
 
+
 async def get_national_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['national_id'] = update.message.text
     await update.message.reply_text(
         "💍 وضعیت تاهل:",
-        reply_markup=ReplyKeyboardMarkup([["متاهل"], ["مجرد"]], one_time_keyboard=True, resize_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(
+            [["متاهل"], ["مجرد"]], one_time_keyboard=True, resize_keyboard=True
+        ),
     )
     return MARITAL
+
 
 async def get_marital(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['marital'] = update.message.text
     await update.message.reply_text("🏠 آدرس محل سکونت:")
     return ADDRESS
 
+
 async def get_address(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['address'] = update.message.text
     await update.message.reply_text("🎂 تاریخ تولد (مثلاً 1370/01/01):")
     return BIRTHDAY
+
 
 async def get_birthday(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['birthday'] = update.message.text
     await update.message.reply_text("💼 شغل شما:")
     return JOB
 
+
 async def get_job(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['job'] = update.message.text
     await update.message.reply_text(
         "📅 نحوه پرداخت مورد نظر:",
-        reply_markup=ReplyKeyboardMarkup([["ماهانه"], ["سالانه"], ["یکجا"]], one_time_keyboard=True, resize_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(
+            [["ماهانه"], ["سالانه"], ["یکجا"]], one_time_keyboard=True, resize_keyboard=True
+        ),
     )
     return PLAN
+
 
 async def get_plan(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['plan'] = update.message.text
     await update.message.reply_text("📮 کد پستی:")
     return POSTAL
 
+
 async def get_postal(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['postal'] = update.message.text
     await update.message.reply_text("👥 کد ملی ذینفع:")
     return BENEFICIARY_ID
 
+
 async def get_beneficiary_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['beneficiary_id'] = update.message.text
     await update.message.reply_text("🎁 تاریخ تولد ذینفع:")
     return BENEFICIARY_BIRTHDAY
+
 
 async def get_beneficiary_birthday(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['beneficiary_birthday'] = update.message.text
@@ -102,19 +146,26 @@ async def get_beneficiary_birthday(update: Update, context: ContextTypes.DEFAULT
         f"🎁 تاریخ تولد ذینفع: {info['beneficiary_birthday']}"
     )
     await context.bot.send_message(chat_id=ADMIN_ID, text=msg)
-    await update.message.reply_text("✅ اطلاعات شما با موفقیت ثبت شد.\n🔗 لینک پرداخت به‌زودی برای شما ارسال خواهد شد.")
+    await update.message.reply_text(
+        "✅ اطلاعات شما با موفقیت ثبت شد.\n"
+        "🔗 لینک پرداخت به‌زودی برای شما ارسال خواهد شد."
+    )
     return ConversationHandler.END
+
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("❌ فرآیند لغو شد.")
     return ConversationHandler.END
 
-# تابع اصلی
+
 def main():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[
+            CommandHandler("start", start),
+            MessageHandler(filters.TEXT & filters.Regex(r'^(start|استارت)$', flags=2), start_on_text),
+        ],
         states={
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
             PHONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_phone)],
@@ -141,6 +192,7 @@ def main():
         webhook_url=WEBHOOK_URL,
         drop_pending_updates=True,
     )
+
 
 if __name__ == "__main__":
     main()
