@@ -14,8 +14,7 @@ from telegram.ext import (
 PORT = int(os.environ.get("PORT", 8443))
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 ADMIN_ID = int(os.environ["ADMIN_ID"])
-WEBHOOK_BASE = os.environ["WEBHOOK_BASE"]  # مثال: https://shoka77-bot.onrender.com
-WEBHOOK_URL = f"{WEBHOOK_BASE}/{BOT_TOKEN}"
+WEBHOOK_URL = os.environ["WEBHOOK_URL"]  # مثلا: https://shoka77-bot.onrender.com
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -110,7 +109,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("❌ فرآیند لغو شد.")
     return ConversationHandler.END
 
-# تابع اصلی اجرا
+# تابع اصلی
 def main():
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
@@ -140,6 +139,7 @@ def main():
         listen="0.0.0.0",
         port=PORT,
         webhook_url=WEBHOOK_URL,
+        webhook_path="/",  # مهم برای درست‌کار کردن Render
         drop_pending_updates=True,
     )
 
